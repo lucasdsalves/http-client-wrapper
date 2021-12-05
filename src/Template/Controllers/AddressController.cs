@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Flurl;
+using Flurl.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using Template.Application.ViewModels;
@@ -19,10 +21,16 @@ namespace Template.Controllers
             _urlBrasilApi = _configuration.GetSection("UrlBrasilApi").Value;
         }
 
-        [HttpGet("cep-details/{cep:int}")]
-        public async Task<IActionResult> GetAddressDetailsByCep(int cep)
+        [HttpGet("cep-details/http-client-wrapper/{cep:int}")]
+        public async Task<IActionResult> GetAddressDetailsByCepUsingHttpClientWrapper(int cep)
         {
             return Ok(await HttpClientWrapper<AddressViewModel>.Get(_urlBrasilApi + $"cep/v1/{cep}"));
+        }
+
+        [HttpGet("cep-details/flur/{cep:int}")]
+        public async Task<IActionResult> GetAddressDetailsByCepUsingFlur(int cep)
+        {
+            return Ok(await _urlBrasilApi.AppendPathSegment("cep/v1/" + cep).GetJsonAsync<AddressViewModel>());
         }
     }
 }
